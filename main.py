@@ -1,11 +1,11 @@
 import cv2
 from src.camera import Camera
-from src.gesture_detector import GestureDetector
+#from src.gesture_detector import GestureDetector
 from src.overlay import Overlay
 
 def main():
     camera = Camera()
-    gesture_detector = GestureDetector()
+    #gesture_detector = GestureDetector()
     gif_overlay = Overlay()
 
     gif_overlay.load_gif('choso', 'assets/gifs/choso-cursed-technique.gif')
@@ -19,7 +19,26 @@ def main():
         if frame is None:
             break
 
+        '''
         hand_landmarks = camera.hand_detection(frame)
+        
+        if hand_landmarks:
+            gesture = gesture_detector.detect_gesture(hand_landmarks)
+            if gesture:
+                current_gif = gesture
+        else:
+            current_gif = None
+        '''
+
+        if current_gif:
+            frame = gif_overlay.apply_overlay(frame, current_gif)
+        cv2.imshow('JJK Signature Poses', frame)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    camera.release()
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     main()
