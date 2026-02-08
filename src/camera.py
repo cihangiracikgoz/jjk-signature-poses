@@ -31,11 +31,10 @@ class Camera:
                     self.mp_hands.HAND_CONNECTIONS
                 )
         
-        if output.multi_hand_landmarks:
-            return output.multi_hand_landmarks
-        else:
-            return None
+            return output.multi_hand_landmarks, output.multi_handedness
         
+        return None, None
+
     def release(self):
         self.cap.release()
     
