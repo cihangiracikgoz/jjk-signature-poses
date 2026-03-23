@@ -4,6 +4,9 @@ import cv2
 class Camera:
     def __init__(self):
         self.cap = cv2.VideoCapture(0)
+        if not self.cap.isOpened():
+            raise RuntimeError("Could not open camera.")
+
         self.mp_hands = mp.solutions.hands
         self.hands = self.mp_hands.Hands(
             min_detection_confidence=0.7,

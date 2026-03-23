@@ -1,3 +1,4 @@
+import os
 import numpy as np
 
 class GestureDetector:
@@ -10,12 +11,20 @@ class GestureDetector:
         self.labels.append(label)
 
     def save_samples(self, path="gesture_samples.npz"):
-        np.savez(
-            path,
-            X=np.array(self.samples),
-            y=np.array(self.labels)
-        )
-        print(f"Saved {len(self.samples)} samples to {path}")
+        if len(self.samples) == 0:
+            print("No samples to save.")
+            return
+
+        X_new = np.array(self.samples)
+        y_new = np.array(self.labels)
+
+        if os.path.exists(path):
+            exist = np.load(path)
+            X_new = np.concatenate([exist['X'], X_new])
+            y_new = np.concatenate([exist['y'], y_new])
+
+        np.savez(path, X=X_new, y=y_new)
+        print(f"Saved {len(self.samples)} new samples to {path} (total: {len(y_new)})")
 
     def get_landmark_vector(self, hand_landmarks, handedness):
         if hand_landmarks is None or handedness is None:
@@ -31,6 +40,11 @@ class GestureDetector:
                 [[lm.x, lm.y, lm.z] for lm in landmark_set.landmark], 
                 dtype=np.float32
             )
+
+            coordinates -= coordinates[0]
+            scale = np.linalg.norm(coordinates[9])  
+            if scale > 0:
+                coordinates /= scale
 
             if label == 'Left':
                 left = coordinates

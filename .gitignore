@@ -1,12 +1,15 @@
 __pycache__/
 *.py[cod]
+
 venv/
 
-.vscode/
+.env
 
+.vscode/
 .DS_Store
 Thumbs.db
 
 assets/gifs/*.gif
 
-.env
+*.npz
+*.pkl

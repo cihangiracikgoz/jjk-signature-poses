@@ -15,8 +15,7 @@ class Overlay:
             try:
                 while True:
                     frame = gif.convert('RGBA')
-                    frame_bgr = cv2.cvtColor(np.array(frame), cv2.COLOR_RGBA2BGR)
-                    frames.append(frame_bgr)
+                    frames.append(np.array(frame))
                     gif.seek(len(frames))
             except EOFError:
                 pass
@@ -30,16 +29,27 @@ class Overlay:
             print(f"Error loading GIF '{name}': {e}")
             self.gifs[name] = []
 
+    def reset_gif(self, name):
+        if name in self.current_frames:
+            self.current_frames[name] = 0
+
     def apply_overlay(self, frame, name):
-        if name not in self.gifs or self.gifs[name] == []:
+        if not self.gifs.get(name):
             return frame
-        
+
         gif_frames = self.gifs[name]
         current_frame_index = self.current_frames[name]
         overlay_frame = gif_frames[current_frame_index]
 
         gif_resized = cv2.resize(overlay_frame, (frame.shape[1], frame.shape[0]))
-        result = cv2.addWeighted(frame, 0.5, gif_resized, 0.5, 0)
+
+        alpha = gif_resized[:, :, 3] / 255.0
+        rgb_bgr = cv2.cvtColor(gif_resized[:, :, :3], cv2.COLOR_RGB2BGR)
+        result = frame.copy()
+
+        for c in range(3):
+            result[:, :, c] = (alpha * rgb_bgr[:, :, c] + (1 - alpha) * result[:, :, c])
+
         self.current_frames[name] = (current_frame_index + 1) % self.frame_counts[name]
 
         return result

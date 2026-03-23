@@ -21,8 +21,6 @@ def main():
 
         hands, handedness = camera.hand_detection(frame)
         vector = gesture_detector.get_landmark_vector(hands, handedness)
-        #print(vector.shape)
-        #assert vector.shape == (126,)
 
         cv2.imshow('Hand Gesture Recognition', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
