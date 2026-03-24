@@ -35,9 +35,13 @@ def main():
     gif_overlay.load_gif('sukuna', 'assets/gifs/sukuna-domain-expansion.gif')
     gif_overlay.load_gif('yuji', 'assets/gifs/yuji-black-flash.gif')
     current_gif = None
+    app_name = "Jujutsu Kaisen - Gesture Recognition"
 
     label = 0
     confidence = 0.0
+
+    cv2.namedWindow(app_name, cv2.WINDOW_NORMAL)
+    cv2.resizeWindow(app_name, 1920, 1080)
 
     while True:
         frame = camera.capture_frame()
@@ -47,10 +51,13 @@ def main():
         hands, handedness = camera.hand_detection(frame)
         vector = gesture_detector.get_landmark_vector(hands, handedness)
 
-        if vector is not None:
+        if hands is not None:
             probabilities = model.predict_proba([vector])[0]
             label = int(np.argmax(probabilities))
             confidence = probabilities[label]
+        else:
+            label = 0
+            confidence = 0.0
 
         if confidence > THRESHOLD and label in GIF_MAPPING:
             new_gif = GIF_MAPPING[label]
@@ -73,7 +80,7 @@ def main():
             2
         )
 
-        cv2.imshow('Hand Gesture Recognition', frame)
+        cv2.imshow(app_name, frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
