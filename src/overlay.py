@@ -8,7 +8,7 @@ class Overlay:
         self.current_frames = {}
         self.frame_counts = {}
 
-    def load_gif(self, name, path):
+    def load_gif(self, name, path, target_size=None):
         try:
             gif = Image.open(path)
             frames = []
@@ -19,6 +19,9 @@ class Overlay:
                     gif.seek(len(frames))
             except EOFError:
                 pass
+
+            if target_size:
+                frames = [cv2.resize(frame, target_size) for frame in frames]
 
             self.gifs[name] = frames
             self.current_frames[name] = 0
@@ -41,14 +44,12 @@ class Overlay:
         current_frame_index = self.current_frames[name]
         overlay_frame = gif_frames[current_frame_index]
 
-        gif_resized = cv2.resize(overlay_frame, (frame.shape[1], frame.shape[0]))
-
-        alpha = gif_resized[:, :, 3] / 255.0
-        rgb_bgr = cv2.cvtColor(gif_resized[:, :, :3], cv2.COLOR_RGB2BGR)
+        alpha = overlay_frame[:, :, 3] / 255.0
+        rgb_bgr = cv2.cvtColor(overlay_frame[:, :, :3], cv2.COLOR_RGB2BGR)
         result = frame.copy()
 
-        for c in range(3):
-            result[:, :, c] = (alpha * rgb_bgr[:, :, c] + (1 - alpha) * result[:, :, c])
+        alpha = alpha[:, :, np.newaxis]
+        result = ((1 - alpha) * result + alpha * rgb_bgr).astype(np.uint8)
 
         self.current_frames[name] = (current_frame_index + 1) % self.frame_counts[name]
 

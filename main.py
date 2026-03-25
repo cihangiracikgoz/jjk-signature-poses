@@ -15,8 +15,11 @@ def main():
     with open(MODEL_PATH, 'rb') as f:
         model = pickle.load(f)
 
+    cap_width = int(camera.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    cap_height = int(camera.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
     for id, (name, path) in GIF_MAPPING.items():
-        gif_overlay.load_gif(name, path)
+        gif_overlay.load_gif(name, path, target_size=(cap_width, cap_height))
 
     current_gif = None
     app_name = "Jujutsu Kaisen - Gesture Recognition"
