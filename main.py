@@ -4,44 +4,29 @@ import numpy as np
 from src.camera import Camera
 from src.gesture_detector import GestureDetector
 from src.overlay import Overlay
-
-LABEL_NAMES = {
-    0: 'IDLE',
-    1: 'GOJO',
-    2: 'SUKUNA',
-    3: 'CHOSO',
-    4: 'YUJI',
-}
-
-GIF_MAPPING = {
-    1: 'gojo',
-    2: 'sukuna',
-    3: 'choso',
-    4: 'yuji',
-}
-
-THRESHOLD = 0.8
+from collections import deque
+from constants import LABEL_NAMES, GIF_MAPPING, MODEL_PATH, THRESHOLD, SMOOTHING, WINDOW_SIZE
 
 def main():
     camera = Camera()
     gesture_detector = GestureDetector()
     gif_overlay = Overlay()
 
-    with open('model.pkl', 'rb') as f:
+    with open(MODEL_PATH, 'rb') as f:
         model = pickle.load(f)
 
-    gif_overlay.load_gif('choso', 'assets/gifs/choso-cursed-technique.gif')
-    gif_overlay.load_gif('gojo', 'assets/gifs/gojo-domain-expansion.gif')
-    gif_overlay.load_gif('sukuna', 'assets/gifs/sukuna-domain-expansion.gif')
-    gif_overlay.load_gif('yuji', 'assets/gifs/yuji-black-flash.gif')
+    for id, (name, path) in GIF_MAPPING.items():
+        gif_overlay.load_gif(name, path)
+
     current_gif = None
     app_name = "Jujutsu Kaisen - Gesture Recognition"
 
     label = 0
     confidence = 0.0
+    buffer = deque(maxlen=SMOOTHING)
 
     cv2.namedWindow(app_name, cv2.WINDOW_NORMAL)
-    cv2.resizeWindow(app_name, 1920, 1080)
+    cv2.resizeWindow(app_name, *WINDOW_SIZE)
 
     while True:
         frame = camera.capture_frame()
@@ -53,14 +38,24 @@ def main():
 
         if hands is not None:
             probabilities = model.predict_proba([vector])[0]
-            label = int(np.argmax(probabilities))
-            confidence = probabilities[label]
+            raw_label = int(np.argmax(probabilities))
+            raw_confidence = probabilities[raw_label]
         else:
-            label = 0
-            confidence = 0.0
+            raw_label = 0
+            raw_confidence = 0.0
+
+        buffer.append((raw_label, raw_confidence))
+
+        if len(buffer) == SMOOTHING:
+            smoothed_labels, smoothed_confidences = zip(*buffer)
+            label = int(np.bincount(smoothed_labels).argmax())
+            confidence = np.mean(smoothed_confidences)
+        else:
+            label = raw_label
+            confidence = raw_confidence
 
         if confidence > THRESHOLD and label in GIF_MAPPING:
-            new_gif = GIF_MAPPING[label]
+            new_gif = GIF_MAPPING[label][0]
             if new_gif != current_gif:
                 current_gif = new_gif
                 gif_overlay.reset_gif(current_gif)

@@ -1,8 +1,8 @@
 import math
 import time, cv2
-
 from src.camera import Camera
 from src.gesture_detector import GestureDetector
+from constants import LABEL_NAMES
 
 COUNTDOWN = 3.0
 RECORDING = 3.0
@@ -13,15 +13,7 @@ LABEL_KEYS = {
     ord('2'): 2,
     ord('3'): 3,
     ord('4'): 4,
-}
-
-LABEL_NAMES = {
-    0: 'IDLE',
-    1: 'GOJO',
-    2: 'SUKUNA',
-    3: 'CHOSO',
-    4: 'YUJI',
-}   
+}  
 
 def main():
     camera = Camera()

@@ -1,9 +1,10 @@
 import mediapipe as mp
 import cv2
+from constants import CAM_INDEX
 
 class Camera:
     def __init__(self):
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(CAM_INDEX)
         if not self.cap.isOpened():
             raise RuntimeError("Could not open camera.")
 

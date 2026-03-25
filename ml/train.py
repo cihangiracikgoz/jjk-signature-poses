@@ -3,17 +3,10 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
-
-LABEL_NAMES = {
-    0: "IDLE",
-    1: "GOJO",
-    2: "SUKUNA",
-    3: "CHOSO",
-    4: "YUJI",
-}
+from constants import LABEL_NAMES, MODEL_PATH, SAMPLES_PATH
 
 def train_model():
-    data = np.load('gesture_samples.npz')
+    data = np.load(SAMPLES_PATH)
     X = data['X']
     y = data['y']
 
@@ -22,15 +15,13 @@ def train_model():
     model.fit(X_train, y_train)
 
     y_pred = model.predict(X_test)
-    print("Classification Report:")
     print(classification_report(y_test, y_pred, target_names=list(LABEL_NAMES.values())))
 
     print("Confusion Matrix:")
     print(confusion_matrix(y_test, y_pred))
 
-    with open('model.pkl', 'wb') as f:
+    with open(MODEL_PATH, 'wb') as f:
         pickle.dump(model, f)
-    print("Model saved to model.pkl")
 
 if __name__ == "__main__":
     train_model()

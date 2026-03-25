@@ -1,5 +1,6 @@
 import os
 import numpy as np
+from constants import SAMPLES_PATH, LANDMARK_VECTOR_SIZE
 
 class GestureDetector:
     def __init__(self):
@@ -10,7 +11,7 @@ class GestureDetector:
         self.samples.append(vector)
         self.labels.append(label)
 
-    def save_samples(self, path="gesture_samples.npz"):
+    def save_samples(self, path=SAMPLES_PATH):
         if len(self.samples) == 0:
             print("No samples to save.")
             return
@@ -28,7 +29,7 @@ class GestureDetector:
 
     def get_landmark_vector(self, hand_landmarks, handedness):
         if hand_landmarks is None or handedness is None:
-            return np.zeros(126, dtype=np.float32)
+            return np.zeros(LANDMARK_VECTOR_SIZE, dtype=np.float32)
 
         left = np.zeros((21, 3), dtype=np.float32)
         right = np.zeros((21, 3), dtype=np.float32)
