@@ -8,7 +8,7 @@ class Overlay:
         self.current_frames = {}
         self.frame_counts = {}
 
-    def load_gif(self, name, path, target_size=None):
+    def load_gif(self, name, path):
         try:
             gif = Image.open(path)
             frames = []
@@ -20,14 +20,13 @@ class Overlay:
             except EOFError:
                 pass
 
-            if target_size:
-                frames = [cv2.resize(frame, target_size) for frame in frames]
-
             self.gifs[name] = frames
             self.current_frames[name] = 0
             self.frame_counts[name] = len(frames)
-            print(f"Loaded GIF {name} with {len(frames)} frames")
 
+        except FileNotFoundError:
+            print(f"GIF file '{path}' not found.")
+            self.gifs[name] = []
         except Exception as e:
             print(f"Error loading GIF '{name}': {e}")
             self.gifs[name] = []
@@ -44,12 +43,12 @@ class Overlay:
         current_frame_index = self.current_frames[name]
         overlay_frame = gif_frames[current_frame_index]
 
-        alpha = overlay_frame[:, :, 3] / 255.0
-        rgb_bgr = cv2.cvtColor(overlay_frame[:, :, :3], cv2.COLOR_RGB2BGR)
-        result = frame.copy()
+        h, w = frame.shape[:2]
+        overlay_frame = cv2.resize(overlay_frame, (w, h))
 
-        alpha = alpha[:, :, np.newaxis]
-        result = ((1 - alpha) * result + alpha * rgb_bgr).astype(np.uint8)
+        alpha = overlay_frame[:, :, 3:4] / 255.0
+        rgb_bgr = cv2.cvtColor(overlay_frame[:, :, :3], cv2.COLOR_RGB2BGR)
+        result = ((1 - alpha) * frame + alpha * rgb_bgr).astype(np.uint8)
 
         self.current_frames[name] = (current_frame_index + 1) % self.frame_counts[name]
 

@@ -5,7 +5,7 @@ from src.camera import Camera
 from src.gesture_detector import GestureDetector
 from src.overlay import Overlay
 from collections import deque
-from constants import LABEL_NAMES, GIF_MAPPING, MODEL_PATH, THRESHOLD, SMOOTHING, WINDOW_SIZE
+from constants import LABEL_NAMES, GIF_MAPPING, MODEL_PATH, THRESHOLD, SMOOTHING
 
 def main():
     model = joblib.load(MODEL_PATH)
@@ -14,11 +14,8 @@ def main():
         gesture_detector = GestureDetector()
         gif_overlay = Overlay()
 
-        cap_width = int(camera.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        cap_height = int(camera.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-        for id, (name, path) in GIF_MAPPING.items():
-            gif_overlay.load_gif(name, path, target_size=(cap_width, cap_height))
+        for _, (name, path) in GIF_MAPPING.items():
+            gif_overlay.load_gif(name, path)
 
         current_gif = None
         app_name = "Jujutsu Kaisen - Gesture Recognition"
@@ -27,8 +24,10 @@ def main():
         confidence = 0.0
         buffer = deque(maxlen=SMOOTHING)
 
+        cap_width = int(camera.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        cap_height = int(camera.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         cv2.namedWindow(app_name, cv2.WINDOW_NORMAL)
-        cv2.resizeWindow(app_name, *WINDOW_SIZE)
+        cv2.resizeWindow(app_name, cap_width, cap_height)
 
         while True:
             frame = camera.capture_frame()
@@ -49,9 +48,8 @@ def main():
             buffer.append((raw_label, raw_confidence))
 
             if len(buffer) == SMOOTHING:
-                smoothed_labels, smoothed_confidences = zip(*buffer)
-                label = int(np.bincount(smoothed_labels).argmax())
-                confidence = np.mean(smoothed_confidences)
+                label = int(np.bincount([item[0] for item in buffer]).argmax())
+                confidence = np.mean([item[1] for item in buffer if item[0] == label])
             else:
                 label = raw_label
                 confidence = raw_confidence

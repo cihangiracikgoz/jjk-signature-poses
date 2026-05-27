@@ -43,7 +43,7 @@ class GestureDetector:
             )
 
             coordinates -= coordinates[0]
-            scale = np.linalg.norm(coordinates[9])  
+            scale = np.max(np.linalg.norm(coordinates, axis=1))
             if scale > 0:
                 coordinates /= scale
 
