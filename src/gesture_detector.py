@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from constants import SAMPLES_PATH, LANDMARK_VECTOR_SIZE
+from src.logger import logger
 
 class GestureDetector:
     def __init__(self):
@@ -13,7 +14,7 @@ class GestureDetector:
 
     def save_samples(self, path=SAMPLES_PATH):
         if len(self.samples) == 0:
-            print("No samples to save.")
+            logger.warning("No samples to save")
             return
 
         X_new = np.array(self.samples)
@@ -25,7 +26,7 @@ class GestureDetector:
             y_new = np.concatenate([exist['y'], y_new])
 
         np.savez(path, X=X_new, y=y_new)
-        print(f"Saved {len(self.samples)} new samples to {path} (total: {len(y_new)})")
+        logger.info("Saved %d new samples to %s (total: %d)", len(self.samples), path, len(y_new))
 
     def get_landmark_vector(self, hand_landmarks, handedness):
         if hand_landmarks is None or handedness is None:

@@ -3,9 +3,13 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
-from constants import LABEL_NAMES, MODEL_PATH, SAMPLES_PATH
+from src.config import load_config
+from constants import MODEL_PATH, SAMPLES_PATH
 
 def train_model():
+    config = load_config()
+    label_names = config["label_names"]
+
     data = np.load(SAMPLES_PATH)
     X = data['X']
     y = data['y']
@@ -15,7 +19,7 @@ def train_model():
     model.fit(X_train, y_train)
 
     y_pred = model.predict(X_test)
-    print(classification_report(y_test, y_pred, target_names=list(LABEL_NAMES.values())))
+    print(classification_report(y_test, y_pred, target_names=list(label_names.values())))
 
     print("Confusion Matrix:")
     print(confusion_matrix(y_test, y_pred))

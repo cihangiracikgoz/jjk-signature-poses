@@ -1,26 +1,26 @@
 import math
-import time, cv2
+import time
+import cv2
 from src.camera import Camera
 from src.gesture_detector import GestureDetector
-from constants import LABEL_NAMES
+from src.config import load_config
 
 COUNTDOWN = 3.0
 RECORDING = 3.0
 
-LABEL_KEYS = {
-    ord('0'): 0,
-    ord('1'): 1,
-    ord('2'): 2,
-    ord('3'): 3,
-    ord('4'): 4,
-}  
 
 def main():
+    config = load_config()
+    label_names = config["label_names"]
+    label_keys = {ord(str(i)): i for i in label_names}
+
     with Camera() as camera:
         gesture_detector = GestureDetector()
 
-        print("Press keys 0-4 to start recording gestures. Press 'q' to quit without saving.")
-        print("Labels: 0=IDLE, 1=GOJO, 2=SUKUNA, 3=CHOSO, 4=YUJI")
+        labels_help = ", ".join(f"{i}={name}" for i, name in label_names.items())
+        max_key = max(label_names.keys())
+        print(f"Press keys 0-{max_key} to start recording gestures. Press 'q' to quit without saving.")
+        print(f"Labels: {labels_help}")
         print("Press 's' to save and quit.")
 
         current_label = None
@@ -41,7 +41,7 @@ def main():
                 if remaining <= 0:
                     mode = 'RECORDING'
                     start_time = now
-                    print(f"Recording '{LABEL_NAMES[current_label]}'")
+                    print(f"Recording '{label_names[current_label]}'")
                 else:
                     cv2.putText(
                         frame,
@@ -60,7 +60,7 @@ def main():
                         gesture_detector.add_sample(vector, current_label)
                     cv2.putText(
                         frame,
-                        f"Recording {LABEL_NAMES[current_label]}",
+                        f"Recording {label_names[current_label]}",
                         (30, 40),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1,
@@ -68,7 +68,7 @@ def main():
                         2   
                     )
                 else:
-                    print(f"Finished recording '{LABEL_NAMES[current_label]}'. Total samples: {len(gesture_detector.samples)}")
+                    print(f"Finished recording '{label_names[current_label]}'. Total samples: {len(gesture_detector.samples)}")
                     mode = 'IDLE'
                     current_label = None
 
@@ -93,11 +93,11 @@ def main():
                 gesture_detector.save_samples()
                 print("Samples saved.")
                 break
-            elif key in LABEL_KEYS and mode == 'IDLE':
-                current_label = LABEL_KEYS[key]
+            elif key in label_keys and mode == 'IDLE':
+                current_label = label_keys[key]
                 mode = 'COUNTDOWN'
                 start_time = time.time()
-                print(f"Starting countdown for '{LABEL_NAMES[current_label]}'")
+                print(f"Starting countdown for '{label_names[current_label]}'")
 
     cv2.destroyAllWindows()
 

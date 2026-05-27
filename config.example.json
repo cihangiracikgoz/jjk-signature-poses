@@ -1,0 +1,22 @@
+{
+    "app_name": "Gesture Recognition",
+    "idle_label": "IDLE",
+    "gestures": [
+        {
+            "label": "Gesture 1",
+            "gif": "assets/gifs/gesture-1.gif"
+        },
+        {
+            "label": "Gesture 2",
+            "gif": "assets/gifs/gesture-2.gif"
+        },
+        {
+            "label": "Gesture 3",
+            "gif": "assets/gifs/gesture-3.gif"
+        },
+        {
+            "label": "Gesture 4",
+            "gif": "assets/gifs/gesture-4.gif"
+        }
+    ]
+}

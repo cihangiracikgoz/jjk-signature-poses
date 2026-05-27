@@ -1,6 +1,7 @@
 import cv2
 from PIL import Image
 import numpy as np
+from src.logger import logger
 
 class Overlay:
     def __init__(self):
@@ -25,10 +26,10 @@ class Overlay:
             self.frame_counts[name] = len(frames)
 
         except FileNotFoundError:
-            print(f"GIF file '{path}' not found.")
+            logger.warning("GIF file '%s' not found", path)
             self.gifs[name] = []
         except Exception as e:
-            print(f"Error loading GIF '{name}': {e}")
+            logger.error("Error loading GIF '%s': %s", name, e)
             self.gifs[name] = []
 
     def reset_gif(self, name):
