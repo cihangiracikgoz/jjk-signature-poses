@@ -15,6 +15,13 @@ class Camera:
             max_num_hands=2
         )
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.release()
+        return False
+
     def capture_frame(self):
         ret, frame = self.cap.read()
         if not ret:
@@ -40,10 +47,5 @@ class Camera:
         return None, None
 
     def release(self):
-        self.cap.release()
-    
-    
-        
-        
-        
-        
+        self.hands.close()
+        self.cap.release() 

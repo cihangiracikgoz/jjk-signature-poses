@@ -13,3 +13,4 @@ assets/gifs/*.gif
 
 *.npz
 *.pkl
+*.joblib

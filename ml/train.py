@@ -1,4 +1,4 @@
-import pickle
+import joblib
 import numpy as np  
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
@@ -20,8 +20,8 @@ def train_model():
     print("Confusion Matrix:")
     print(confusion_matrix(y_test, y_pred))
 
-    with open(MODEL_PATH, 'wb') as f:
-        pickle.dump(model, f)
+    joblib.dump(model, MODEL_PATH)
+    print(f"Model saved to {MODEL_PATH}")
 
 if __name__ == "__main__":
     train_model()

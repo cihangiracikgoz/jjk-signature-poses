@@ -19,5 +19,5 @@ WINDOW_SIZE = (1920, 1080)
 CAM_INDEX = 0
 LANDMARK_VECTOR_SIZE = 21 * 3 * 2  
 
-MODEL_PATH = 'model.pkl'
+MODEL_PATH = 'model.joblib'
 SAMPLES_PATH = 'gesture_samples.npz'
